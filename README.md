@@ -29,4 +29,6 @@ Found a mistake or want to add something? Send a pull request.
    If you edit directly on GitHub and cannot run the command, skip this step and mention it in the pull request.
 4. **Commit** the changes and open a **Pull request** against `main` in `ftntlabcz/fortiaigate-detectors`. Describe what you changed and add a link to the source.
 
-Collaborators with write access can create a branch here directly instead of forking.
+Collaborators with write access can create a branch here directly instead of forking. Details, data format and content rules are in [CONTRIBUTING.md](CONTRIBUTING.md). Not sure how to fix something? [Open an issue](../../issues/new/choose) instead.
+
+Public domain ([Unlicense](LICENSE)). Third-party names and linked sources: see [NOTICE](NOTICE.md).

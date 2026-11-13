@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: FortiAIGate documentation
+    url: https://docs.fortinet.com/product/fortiaigate
+    about: Questions about the product itself belong to Fortinet documentation and support.
+  - name: Security issue in this page
+    url: https://github.com/ftntlabcz/fortiaigate-detectors/security/advisories/new
+    about: Report vulnerabilities privately, not as a public issue.

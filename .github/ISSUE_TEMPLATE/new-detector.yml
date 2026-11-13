@@ -1,0 +1,33 @@
+name: New detector
+description: A governance detector in FortiAIGate that is missing from the map.
+title: "[New detector] "
+labels: ["new detector"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Detector name
+      description: Exactly as shown in the FortiAIGate GUI.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: FortiAIGate version
+      placeholder: 8.0.2
+    validations:
+      required: true
+  - type: input
+    id: rules
+    attributes:
+      label: Number of rules
+  - type: textarea
+    id: gui
+    attributes:
+      label: Description from the GUI
+      description: Copy the detector description shown in FortiAIGate.
+  - type: input
+    id: link
+    attributes:
+      label: Official source
+      description: Link to the law, standard or framework.

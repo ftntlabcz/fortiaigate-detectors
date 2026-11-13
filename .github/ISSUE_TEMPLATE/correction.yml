@@ -1,0 +1,39 @@
+name: Data correction
+description: Something in the map is wrong or out of date (name, rule count, description, link).
+title: "[Correction] "
+labels: ["correction"]
+body:
+  - type: input
+    id: item
+    attributes:
+      label: Detector or topic
+      description: The name as shown in the graph.
+      placeholder: EU DORA
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is wrong
+      options:
+        - Rule count
+        - Description
+        - Official link
+        - Region or category
+        - Translation (CZ / SK)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What it says now and what it should say
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Link to the official text, the FortiAIGate documentation, or the FortiAIGate version you checked in the GUI.
+    validations:
+      required: true
