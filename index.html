@@ -72,8 +72,13 @@ aside a.src:hover { text-decoration: underline; }
 aside .hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
 .legend { position: absolute; left: 16px; bottom: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
 .legend div { display: flex; align-items: center; gap: 8px; }
-.note { position: absolute; right: 16px; bottom: 16px; font-size: 11px; color: var(--muted); max-width: 360px; text-align: right; }
-@media (max-width: 700px) { aside { top: auto; bottom: 16px; max-height: 40%; } .legend, .note { display: none; } input[type="search"] { width: 140px; } }
+.corner { position: absolute; right: 16px; bottom: 16px; display: grid; justify-items: end; gap: 8px; max-width: 380px; }
+.note { font-size: 11px; color: var(--muted); text-align: right; }
+.gh { display: inline-flex; align-items: center; gap: 8px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; text-decoration: none; }
+.gh:hover { border-color: var(--muted); }
+.gh svg { width: 16px; height: 16px; flex: none; cursor: pointer; }
+
+@media (max-width: 700px) { aside { top: auto; bottom: 16px; max-height: 40%; } .legend, .corner { display: none; } input[type="search"] { width: 140px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
@@ -99,7 +104,10 @@ aside .hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
     <svg id="graph" role="img" aria-label="Graph of FortiAIGate governance detectors"></svg>
     <aside id="panel" aria-live="polite"></aside>
     <div class="legend" id="legend"></div>
-    <div class="note" data-i18n="note"></div>
+    <div class="corner">
+      <a class="gh" id="gh" href="https://github.com/ftntlabcz/fortiaigate-detectors" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span data-i18n="ghLabel"></span></a>
+      <div class="note" data-i18n="note"></div>
+    </div>
   </main>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -113,21 +121,21 @@ const I18N = {
     rules: n => n==null ? "počet pravidel neuveden" : `${n} pravidel`, covers: "Pokrývá", detectors: "Detektory", coveredBy: "Pokrývají ho detektory",
     hubText: "Předpřipravené detektory pro regulace a bezpečnostní rámce. Klikněte na bublinu pro detail, táhnutím posunete, kolečkem přiblížíte.",
     note: "Zdroj: FortiAIGate 8.0.2, výpis z GUI. Shoda s detektorem není posouzení regulatorní shody. Neoficiální přehled, nesouvisí s Fortinetem.",
-    legendDet: "Detektor (velikost = počet pravidel)", legendTopic: "Téma (velikost = počet detektorů)" },
+    legendDet: "Detektor (velikost = počet pravidel)", legendTopic: "Téma (velikost = počet detektorů)", ghLabel: "Repozitář na GitHubu" },
   sk: { title: "FortiAIGate – governance detektory", stats: (d,t,c)=>`${c} kategórií · ${d} detektorov · ${t} tém`,
     eu: "EÚ a Európa", usa: "USA", asia: "Ázia", global: "Globálne", source: "Zdroj", official: "Oficiálny text", cat: "Kategória", topic: "Téma",
     topicsOn: "Skryť témy", topicsOff: "Zobraziť témy", search: "Hľadať…", reset: "Vycentrovať", fs: "Celá obrazovka",
     rules: n => n==null ? "počet pravidiel neuvedený" : `${n} pravidiel`, covers: "Pokrýva", detectors: "Detektory", coveredBy: "Pokrývajú ho detektory",
     hubText: "Preddefinované detektory pre regulácie a bezpečnostné rámce. Kliknite na bublinu pre detail, ťahaním posuniete, kolieskom priblížite.",
     note: "Zdroj: FortiAIGate 8.0.2, výpis z GUI. Zhoda s detektorom nie je posúdenie regulačnej zhody. Neoficiálny prehľad, nesúvisí s Fortinetom.",
-    legendDet: "Detektor (veľkosť = počet pravidiel)", legendTopic: "Téma (veľkosť = počet detektorov)" },
+    legendDet: "Detektor (veľkosť = počet pravidiel)", legendTopic: "Téma (veľkosť = počet detektorov)", ghLabel: "Repozitár na GitHube" },
   en: { title: "FortiAIGate – Governance Detectors", stats: (d,t,c)=>`${c} categories · ${d} detectors · ${t} topics`,
     eu: "EU & Europe", usa: "USA", asia: "Asia", global: "Global", source: "Source", official: "Official text", cat: "Category", topic: "Topic",
     topicsOn: "Hide topics", topicsOff: "Show topics", search: "Search…", reset: "Recenter", fs: "Full screen",
     rules: n => n==null ? "rule count not listed" : `${n} rules`, covers: "Covers", detectors: "Detectors", coveredBy: "Covered by detectors",
     hubText: "Predefined detectors for regulations and security frameworks. Click a bubble for details, drag to pan, scroll to zoom.",
     note: "Source: FortiAIGate 8.0.2 GUI listing. A detector match is not a regulatory compliance assessment. Unofficial overview, not affiliated with Fortinet.",
-    legendDet: "Detector (size = rule count)", legendTopic: "Topic (size = number of detectors)" },
+    legendDet: "Detector (size = rule count)", legendTopic: "Topic (size = number of detectors)", ghLabel: "GitHub repository" },
 };
 const REG = ["eu","usa","asia","global"];
 const css = getComputedStyle(document.documentElement);
