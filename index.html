@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FortiAIGate Governance Detectors</title>
+<meta name="description" content="Interactive map of the predefined governance detectors in FortiAIGate 8.0.2: AI security frameworks and regulations by region.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: full-screen graph canvas, slim top bar, detail panel docked right. Single dark theme for projectors. */
+  --bg: #0D1117;
+  --surface: #161B22;
+  --line: #2A313C;
+  --text: #E6EDF3;
+  --muted: #8B949E;
+  --eu: #4C8DFF;
+  --usa: #FF5C5C;
+  --global: #3DD68C;
+  --asia: #B48CFF;
+  --cat: #F5B841;
+  --topic: #7D8590;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); font-size: 14px; overflow: hidden; }
+#app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--surface); }
+h1 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 small { display: block; font-family: var(--body); font-weight: 400; font-size: 12px; color: var(--muted); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.grow { flex: 1; }
+.group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+button, select, input { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+button { cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button[aria-pressed="true"] { background: #243042; border-color: #3A4A61; }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+:focus-visible { outline: 2px solid var(--cat); outline-offset: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.chip[aria-pressed="false"] { opacity: .45; }
+input[type="search"] { width: 190px; }
+main { position: relative; min-height: 0; }
+svg { width: 100%; height: 100%; display: block; cursor: grab; }
+svg:active { cursor: grabbing; }
+.link { stroke: var(--line); stroke-opacity: .9; }
+.link.hl { stroke: #9AA7B6; stroke-opacity: 1; }
+.node circle { stroke: var(--bg); stroke-width: 1.5px; cursor: pointer; }
+.node text { fill: var(--text); pointer-events: none; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
+.node.det text { font-size: 11px; }
+.node.topic text { font-size: 10px; fill: #B7C0CA; }
+.node.cat text { font-family: var(--display); font-size: 15px; font-weight: 600; }
+.node.hub text { font-family: var(--display); font-size: 20px; font-weight: 600; }
+.dim { opacity: .12; }
+.node.sel circle { stroke: var(--text); stroke-width: 3px; }
+aside { position: absolute; top: 16px; right: 16px; width: min(320px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+aside h2 { font-family: var(--display); font-size: 18px; margin: 0; text-wrap: balance; }
+aside .meta { color: var(--muted); font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+aside .pill { border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 600; color: var(--bg); }
+aside ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+aside li button { font-size: 12px; padding: 4px 8px; display: inline-flex; align-items: center; gap: 6px; }
+aside .desc { margin: 0; line-height: 1.5; color: var(--text); font-size: 13px; }
+aside a.src { color: var(--eu); font-size: 12px; text-decoration: none; word-break: break-word; }
+aside a.src:hover { text-decoration: underline; }
+aside .hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.legend { position: absolute; left: 16px; bottom: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.legend div { display: flex; align-items: center; gap: 8px; }
+.note { position: absolute; right: 16px; bottom: 16px; font-size: 11px; color: var(--muted); max-width: 360px; text-align: right; }
+@media (max-width: 700px) { aside { top: auto; bottom: 16px; max-height: 40%; } .legend, .note { display: none; } input[type="search"] { width: 140px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1><span data-i18n="title"></span><small id="stats"></small></h1>
+    <div class="group" role="group" aria-label="Region" id="regions"></div>
+    <div class="group">
+      <button id="topics" aria-pressed="true"></button>
+      <input type="search" id="search">
+      <button id="reset"></button>
+      <button id="fs"></button>
+    </div>
+    <div class="grow"></div>
+    <div class="seg" role="group" aria-label="Language" id="langs">
+      <button data-lang="en" aria-pressed="true">EN</button>
+      <button data-lang="cs" aria-pressed="false">CZ</button>
+      <button data-lang="sk" aria-pressed="false">SK</button>
+    </div>
+  </header>
+  <main>
+    <svg id="graph" role="img" aria-label="Graph of FortiAIGate governance detectors"></svg>
+    <aside id="panel" aria-live="polite"></aside>
+    <div class="legend" id="legend"></div>
+    <div class="note" data-i18n="note"></div>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<script>
+const DATA = window.DATA;
+const I18N = {
+  cs: { title: "FortiAIGate – governance detektory", stats: (d,t,c)=>`${c} kategorií · ${d} detektorů · ${t} témat`,
+    eu: "EU a Evropa", usa: "USA", asia: "Asie", global: "Globální", source: "Zdroj", official: "Oficiální text", cat: "Kategorie", topic: "Téma",
+    topicsOn: "Skrýt témata", topicsOff: "Zobrazit témata", search: "Hledat…", reset: "Vycentrovat", fs: "Celá obrazovka",
+    rules: n => n==null ? "počet pravidel neuveden" : `${n} pravidel`, covers: "Pokrývá", detectors: "Detektory", coveredBy: "Pokrývají ho detektory",
+    hubText: "Předpřipravené detektory pro regulace a bezpečnostní rámce. Klikněte na bublinu pro detail, táhnutím posunete, kolečkem přiblížíte.",
+    note: "Zdroj: FortiAIGate 8.0.2, výpis z GUI. Shoda s detektorem není posouzení regulatorní shody. Neoficiální přehled, nesouvisí s Fortinetem.",
+    legendDet: "Detektor (velikost = počet pravidel)", legendTopic: "Téma (velikost = počet detektorů)" },
+  sk: { title: "FortiAIGate – governance detektory", stats: (d,t,c)=>`${c} kategórií · ${d} detektorov · ${t} tém`,
+    eu: "EÚ a Európa", usa: "USA", asia: "Ázia", global: "Globálne", source: "Zdroj", official: "Oficiálny text", cat: "Kategória", topic: "Téma",
+    topicsOn: "Skryť témy", topicsOff: "Zobraziť témy", search: "Hľadať…", reset: "Vycentrovať", fs: "Celá obrazovka",
+    rules: n => n==null ? "počet pravidiel neuvedený" : `${n} pravidiel`, covers: "Pokrýva", detectors: "Detektory", coveredBy: "Pokrývajú ho detektory",
+    hubText: "Preddefinované detektory pre regulácie a bezpečnostné rámce. Kliknite na bublinu pre detail, ťahaním posuniete, kolieskom priblížite.",
+    note: "Zdroj: FortiAIGate 8.0.2, výpis z GUI. Zhoda s detektorom nie je posúdenie regulačnej zhody. Neoficiálny prehľad, nesúvisí s Fortinetom.",
+    legendDet: "Detektor (veľkosť = počet pravidiel)", legendTopic: "Téma (veľkosť = počet detektorov)" },
+  en: { title: "FortiAIGate – Governance Detectors", stats: (d,t,c)=>`${c} categories · ${d} detectors · ${t} topics`,
+    eu: "EU & Europe", usa: "USA", asia: "Asia", global: "Global", source: "Source", official: "Official text", cat: "Category", topic: "Topic",
+    topicsOn: "Hide topics", topicsOff: "Show topics", search: "Search…", reset: "Recenter", fs: "Full screen",
+    rules: n => n==null ? "rule count not listed" : `${n} rules`, covers: "Covers", detectors: "Detectors", coveredBy: "Covered by detectors",
+    hubText: "Predefined detectors for regulations and security frameworks. Click a bubble for details, drag to pan, scroll to zoom.",
+    note: "Source: FortiAIGate 8.0.2 GUI listing. A detector match is not a regulatory compliance assessment. Unofficial overview, not affiliated with Fortinet.",
+    legendDet: "Detector (size = rule count)", legendTopic: "Topic (size = number of detectors)" },
+};
+const REG = ["eu","usa","asia","global"];
+const css = getComputedStyle(document.documentElement);
+const COLOR = { eu: css.getPropertyValue("--eu").trim(), usa: css.getPropertyValue("--usa").trim(), asia: css.getPropertyValue("--asia").trim(), global: css.getPropertyValue("--global").trim(),
+  cat: css.getPropertyValue("--cat").trim(), hub: css.getPropertyValue("--text").trim(), topic: css.getPropertyValue("--topic").trim() };
+
+let lang = "en", showTopics = true, selected = null, query = "";
+try { lang = localStorage.getItem("fag-lang") || "en"; } catch(e) {}
+const regionOn = { eu: true, usa: true, asia: true, global: true };
+
+const byId = new Map(DATA.nodes.map(n => [n.id, n]));
+const adj = new Map(DATA.nodes.map(n => [n.id, new Set()]));
+DATA.links.forEach(l => { adj.get(l.source).add(l.target); adj.get(l.target).add(l.source); });
+DATA.nodes.forEach(n => { if (n.type === "topic") n.deg = adj.get(n.id).size; });
+const color = n => n.type === "det" ? COLOR[n.region] : COLOR[n.type];
+const radius = n => n.type === "hub" ? 26 : n.type === "cat" ? 16 : n.type === "det" ? 6 + Math.sqrt(n.rules || 6) * 1.6 : 3 + Math.sqrt(n.deg) * 2.2;
+const L = (n) => n.label[lang];
+
+const svg = d3.select("#graph");
+const root = svg.append("g");
+const linkG = root.append("g"), nodeG = root.append("g");
+const zoom = d3.zoom().scaleExtent([0.2, 4]).on("zoom", e => { root.attr("transform", e.transform); updateLabels(e.transform.k); });
+svg.call(zoom).on("dblclick.zoom", null);
+svg.on("click", e => { if (e.target === svg.node()) select(null); });
+
+const sim = d3.forceSimulation()
+  .force("link", d3.forceLink().id(d => d.id).distance(l => { const t = l.target.type || byId.get(l.target).type; return t === "cat" ? 230 : t === "det" ? 120 : 70; }).strength(l => (l.target.type === "topic") ? 0.12 : 0.9))
+  .force("charge", d3.forceManyBody().strength(d => d.type === "hub" ? -2000 : d.type === "cat" ? -1000 : d.type === "det" ? -260 : -90))
+  .force("collide", d3.forceCollide().radius(d => radius(d) + (d.type === "det" ? 16 : d.type === "cat" ? 30 : 6)))
+  .force("x", d3.forceX().strength(0.03)).force("y", d3.forceY().strength(0.03));
+
+let linkSel, nodeSel, curNodes, curLinks;
+function visible(n) {
+  if (n.type === "det") return regionOn[n.region];
+  if (n.type === "topic") return showTopics && [...adj.get(n.id)].some(id => regionOn[byId.get(id).region]);
+  return true;
+}
+function build() {
+  curNodes = DATA.nodes.filter(visible);
+  const ids = new Set(curNodes.map(n => n.id));
+  curLinks = DATA.links.filter(l => ids.has(l.source.id || l.source) && ids.has(l.target.id || l.target))
+    .map(l => ({ source: l.source.id || l.source, target: l.target.id || l.target }));
+  linkSel = linkG.selectAll("line").data(curLinks, d => d.source + ">" + d.target)
+    .join("line").attr("class", "link").attr("stroke-width", d => byId.get(d.target).type === "topic" ? 0.8 : 1.4);
+  nodeSel = nodeG.selectAll("g.node").data(curNodes, d => d.id).join(enter => {
+    const g = enter.append("g").attr("class", d => "node " + d.type).attr("tabindex", 0)
+      .on("click", (e, d) => { e.stopPropagation(); select(d.id); })
+      .on("keydown", (e, d) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(d.id); } })
+      .on("mouseenter", (e, d) => { if (!selected) highlight(d.id); })
+      .on("mouseleave", () => { if (!selected) highlight(null); })
+      .call(d3.drag().on("start", (e, d) => { if (!e.active) sim.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
+        .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+        .on("end", (e, d) => { if (!e.active) sim.alphaTarget(0); if (d.type !== "hub") { d.fx = null; d.fy = null; } }));
+    g.append("circle");
+    g.append("text");
+    return g;
+  });
+  nodeSel.select("circle").attr("r", radius).attr("fill", color);
+  nodeSel.select("text").attr("text-anchor", d => d.type === "hub" || d.type === "cat" ? "middle" : "start")
+    .attr("dy", d => d.type === "hub" ? radius(d) + 22 : d.type === "cat" ? radius(d) + 17 : "0.35em")
+    .attr("dx", d => d.type === "det" || d.type === "topic" ? radius(d) + 4 : 0);
+  const hub = byId.get("hub"); hub.fx = 0; hub.fy = 0;
+  sim.nodes(curNodes); sim.force("link").links(curLinks);
+  sim.alpha(0.8).restart();
+  relabel(); applyHighlight();
+}
+function ticked() {
+  linkSel.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+  nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
+}
+sim.on("tick", ticked);
+let zoomK = 1;
+function updateLabels(k) { zoomK = k; nodeSel && nodeSel.select("text").style("display", d => labelShown(d) ? null : "none"); }
+function labelShown(d) {
+  if (d.type !== "topic") return true;
+  if (selected && (selected === d.id || adj.get(selected).has(d.id))) return true;
+  if (query && L(d).toLowerCase().includes(query)) return true;
+  return d.deg >= 3 || zoomK > 1.4;
+}
+function relabel() {
+  const t = I18N[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t[el.dataset.i18n]);
+  document.title = t.title;
+  const c = DATA.nodes.filter(n => n.type === "cat").length, d = DATA.nodes.filter(n => n.type === "det").length, tp = DATA.nodes.filter(n => n.type === "topic").length;
+  document.getElementById("stats").textContent = t.stats(d, tp, c);
+  document.getElementById("topics").textContent = showTopics ? t.topicsOn : t.topicsOff;
+  document.getElementById("search").placeholder = t.search;
+  document.getElementById("search").setAttribute("aria-label", t.search);
+  document.getElementById("reset").textContent = t.reset;
+  document.getElementById("fs").textContent = t.fs;
+  document.getElementById("regions").innerHTML = REG.map(r => {
+    const cnt = DATA.nodes.filter(n => n.region === r).length;
+    return `<button class="chip" data-r="${r}" aria-pressed="${regionOn[r]}"><span class="dot" style="background:${COLOR[r]}"></span>${t[r]} <span style="color:var(--muted)">${cnt}</span></button>`;
+  }).join("");
+  document.querySelectorAll("#regions button").forEach(b => b.onclick = () => { regionOn[b.dataset.r] = !regionOn[b.dataset.r]; if (selected && !visible(byId.get(selected))) selected = null; build(); });
+  document.querySelectorAll("#langs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+  document.getElementById("legend").innerHTML = [
+    ["hub", "FortiAIGate"], ["cat", t.cat], ["eu", t.eu], ["usa", t.usa], ["asia", t.asia], ["global", t.global], ["topic", t.legendTopic]
+  ].map(([k, s]) => `<div><span class="dot" style="background:${COLOR[k]}"></span>${s}</div>`).join("") + `<div style="padding-left:18px">${t.legendDet}</div>`;
+  nodeSel && nodeSel.select("text").text(L);
+  updateLabels(zoomK);
+  renderPanel();
+}
+function highlight(id) {
+  const keep = id ? new Set([id, ...adj.get(id)]) : null;
+  if (id && byId.get(id).type === "cat") adj.get(id).forEach(d => adj.get(d).forEach(x => keep.add(x)));
+  const q = query;
+  nodeSel.classed("dim", d => { if (keep) return !keep.has(d.id); if (q) return !L(d).toLowerCase().includes(q); return false; });
+  nodeSel.classed("sel", d => d.id === id);
+  linkSel.classed("dim", d => { if (keep) return !(keep.has(d.source.id) && keep.has(d.target.id)); return !!q; })
+    .classed("hl", d => keep && (d.source.id === id || d.target.id === id));
+  updateLabels(zoomK);
+}
+function applyHighlight() { highlight(selected); }
+function select(id) { selected = id; applyHighlight(); renderPanel(); }
+function esc(x) { return String(x).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function itemBtn(n) { return `<li><button data-go="${n.id}"><span class="dot" style="background:${color(n)}"></span>${L(n)}</button></li>`; }
+function renderPanel() {
+  const t = I18N[lang], p = document.getElementById("panel");
+  const n = selected ? byId.get(selected) : byId.get("hub");
+  const nb = [...adj.get(n.id)].map(id => byId.get(id)).filter(visible);
+  let html = "";
+  if (n.type === "hub") {
+    html = `<h2>FortiAIGate 8.0.2</h2><p class="hint">${t.hubText}</p><ul>${nb.map(itemBtn).join("")}</ul>`;
+  } else if (n.type === "cat") {
+    html = `<div class="meta"><span class="pill" style="background:${COLOR.cat}">${t.cat}</span></div><h2>${L(n)}</h2><div class="meta">${t.detectors}</div><ul>${nb.filter(x => x.type === "det").map(itemBtn).join("")}</ul>`;
+  } else if (n.type === "det") {
+    const cat = byId.get(n.cat);
+    html = `<div class="meta"><span class="pill" style="background:${COLOR[n.region]}">${t[n.region]}</span><span>${t.rules(n.rules)}</span></div><h2>${L(n)}</h2>
+      <div class="meta">${t.cat}: <button data-go="${cat.id}" style="font-size:12px;padding:2px 8px">${L(cat)}</button></div>
+      <p class="desc">${n.desc[lang]}</p><a class="src" href="${n.url}" target="_blank" rel="noopener">${t.official} ↗</a>
+      <div class="meta">${t.covers}</div><ul>${nb.filter(x => x.type === "topic").map(itemBtn).join("")}</ul>`;
+  } else {
+    html = `<div class="meta"><span class="pill" style="background:${COLOR.topic}">${t.topic}</span></div><h2>${L(n)}</h2><p class="desc">${n.desc[lang]}</p><a class="src" href="${n.url}" target="_blank" rel="noopener">${t.source}: ${esc(n.src)} ↗</a><div class="meta">${t.coveredBy} (${nb.length})</div><ul>${nb.map(itemBtn).join("")}</ul>`;
+  }
+  p.innerHTML = html;
+  p.querySelectorAll("[data-go]").forEach(b => b.onclick = () => select(b.dataset.go));
+}
+document.querySelectorAll("#langs button").forEach(b => b.onclick = () => { lang = b.dataset.lang; try { localStorage.setItem("fag-lang", lang); } catch(e) {} relabel(); applyHighlight(); });
+document.getElementById("topics").onclick = e => { showTopics = !showTopics; e.currentTarget.setAttribute("aria-pressed", showTopics); if (selected && !visible(byId.get(selected))) selected = null; build(); };
+document.getElementById("search").oninput = e => { query = e.target.value.trim().toLowerCase(); selected = null; applyHighlight(); renderPanel(); };
+document.getElementById("reset").onclick = fit;
+document.getElementById("fs").onclick = () => { const el = document.documentElement; try { (document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen()).catch(() => {}); } catch(e) {} };
+function fit() {
+  const box = svg.node().getBoundingClientRect();
+  const panelW = box.width > 900 ? 350 : 0;
+  const xs = curNodes.map(n => n.x), ys = curNodes.map(n => n.y);
+  const [x0, x1, y0, y1] = [d3.min(xs) - 60, d3.max(xs) + 160, d3.min(ys) - 40, d3.max(ys) + 50];
+  const k = Math.min((box.width - panelW) / (x1 - x0), box.height / (y1 - y0), 1.6) * 0.95;
+  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate((box.width - panelW) / 2 - k * (x0 + x1) / 2, box.height / 2 - k * (y0 + y1) / 2).scale(k));
+}
+build();
+for (let i = 0; i < 300; i++) sim.tick();
+sim.alpha(0.05);
+ticked();
+fit();
+window.addEventListener("resize", fit);
+</script>
+</body>
+</html>
