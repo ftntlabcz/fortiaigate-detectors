@@ -1,6 +1,9 @@
 # FortiAIGate Governance Detectors
 
-Interactive map of the predefined governance detectors in FortiAIGate 8.0.2.
+Interactive map of the predefined governance detectors in FortiAIGate 8.0.2. Based on documentation https://docs.fortinet.com/document/fortiaigate/8.0.2/fortiaigate-administration-guide/210987/detectors-and-guardrails#use-governance-detectors
+
+> [!NOTE]
+> It is not a regulatory compliance assessment or certification.
 
 **Live page:** https://ftntlabcz.github.io/fortiaigate-detectors/
 
